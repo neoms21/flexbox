@@ -1,41 +1,130 @@
-if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./configureStore.prod.js'); // eslint-disable-line global-require
-} else {
-  module.exports = require('./configureStore.dev.js'); // eslint-disable-line global-require
-}
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-//dev
-import { applyMiddleware, createStore } from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension';
-import thunk from 'redux-thunk';
-import rootReducer from '../reducers';
+import { Input } from 'semantic-ui-react';
 
-export default function configureStore() {
-  const store = createStore(
-    rootReducer,
-    {},
-    composeWithDevTools(applyMiddleware(thunk)),
-  );
-  if (module.hot) {
-    // Enable Webpack hot module replacement for reducers
-    module.hot.accept('../reducers', () => {
-      const nextRootReducer = rootReducer;
-      store.replaceReducer(nextRootReducer);
-    });
+const propTypes = {
+  input: PropTypes.object,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  meta: PropTypes.object,
+  dataSelector: PropTypes.string,
+  inputGroup: PropTypes.string,
+  additionalText: PropTypes.string,
+  required: PropTypes.string,
+  inputSize: PropTypes.string,
+  rightLabel: PropTypes.string,
+  transparent: PropTypes.bool,
+  disabled: PropTypes.bool,
+  disablePaste: PropTypes.bool,
+  trimSpaces: PropTypes.bool,
+  maxLength: PropTypes.number,
+  pattern: PropTypes.string,
+};
+
+const defaultProps = {
+  input: {},
+  label: '',
+  type: 'text',
+  meta: {},
+  dataSelector: 'input',
+  inputGroup: 'false',
+  additionalText: '',
+  required: '',
+  inputSize: 'large',
+  rightLabel: '',
+  transparent: false,
+  disabled: false,
+  disablePaste: true,
+  maxLength: 100,
+  pattern: '',
+  trimSpaces: true,
+};
+
+class InputField extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { value: this.props.input.value };
   }
 
-  return store;
+
+  onChange = (e) => {
+    const pattern = this.props.pattern;
+    const spaceTrimmedValue = this.props.trimSpaces ? e.target.value.replace(/ /g, '') : e.target.value;
+    if (pattern && !RegExp(pattern).test(spaceTrimmedValue)) {
+      this.setState({ value: e.target.value.substring(0, e.target.value.length - 1) });
+    } else {
+      this.setState({ value: spaceTrimmedValue });
+    }
+  };
+
+  handlePaste = (e) => {
+    if (this.props.disablePaste) {
+      e.preventDefault();
+    }
+  };
+
+  render() {
+    const {
+      input,
+      label,
+      type,
+      meta: { touched, error },
+      dataSelector,
+      inputGroup,
+      additionalText,
+      required,
+      inputSize,
+      rightLabel,
+      transparent,
+      disabled,
+      maxLength,
+      pattern,
+    } = this.props;
+
+
+    return (
+
+      <div
+        className={`form-field ${JSON.parse(inputGroup) && touched && error && 'input-group-error'} ${!(JSON.parse(inputGroup)) && 'clearfix'} ${(type === 'hidden') && 'hide'} `}
+      >
+        <label
+          className={`form-label ${required}`} data-selector={`${dataSelector}-input-label`}
+          htmlFor="input-label"
+        >
+          {label}
+        </label>
+        <div className={`form-value ${touched && error && 'error'}`}>
+          {touched &&
+          (error &&
+            <div className="form-error" data-selector={`${dataSelector}-input-error`}>
+              {error}
+            </div>)}
+          <Input
+            {...input}
+            type={type}
+            onChange={this.onChange}
+            value={this.state.value}
+            size={inputSize}
+            transparent={transparent}
+            disabled={disabled}
+            maxLength={maxLength}
+          >
+            <input
+              onPaste={this.handlePaste}
+              pattern={pattern || null}
+              data-selector={`${dataSelector}-input`}
+            />
+          </Input> {rightLabel}
+        </div>
+
+        {(<div className="additional-text">{additionalText}</div>)}
+      </div>);
+  }
 }
 
-//prod
-import { applyMiddleware, createStore } from 'redux';
-import thunk from 'redux-thunk';
-import rootReducer from '../reducers';
+InputField.propTypes = propTypes;
+InputField.defaultProps = defaultProps;
 
-export default function configureStore() {
-  return createStore(
-    rootReducer,
-    {},
-    applyMiddleware(thunk),
-  );
-}
+export default InputField;
