@@ -1,130 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-
-import { Input } from 'semantic-ui-react';
-
-const propTypes = {
-  input: PropTypes.object,
-  label: PropTypes.string,
-  type: PropTypes.string,
-  meta: PropTypes.object,
-  dataSelector: PropTypes.string,
-  inputGroup: PropTypes.string,
-  additionalText: PropTypes.string,
-  required: PropTypes.string,
-  inputSize: PropTypes.string,
-  rightLabel: PropTypes.string,
-  transparent: PropTypes.bool,
-  disabled: PropTypes.bool,
-  disablePaste: PropTypes.bool,
-  trimSpaces: PropTypes.bool,
-  maxLength: PropTypes.number,
-  pattern: PropTypes.string,
-};
-
-const defaultProps = {
-  input: {},
-  label: '',
-  type: 'text',
-  meta: {},
-  dataSelector: 'input',
-  inputGroup: 'false',
-  additionalText: '',
-  required: '',
-  inputSize: 'large',
-  rightLabel: '',
-  transparent: false,
-  disabled: false,
-  disablePaste: true,
-  maxLength: 100,
-  pattern: '',
-  trimSpaces: true,
-};
-
-class InputField extends Component {
-
-  constructor(props) {
-    super(props);
-    this.state = { value: this.props.input.value };
-  }
-
-
-  onChange = (e) => {
-    const pattern = this.props.pattern;
-    const spaceTrimmedValue = this.props.trimSpaces ? e.target.value.replace(/ /g, '') : e.target.value;
-    if (pattern && !RegExp(pattern).test(spaceTrimmedValue)) {
-      this.setState({ value: e.target.value.substring(0, e.target.value.length - 1) });
-    } else {
-      this.setState({ value: spaceTrimmedValue });
-    }
-  };
-
-  handlePaste = (e) => {
-    if (this.props.disablePaste) {
-      e.preventDefault();
-    }
-  };
-
-  render() {
-    const {
-      input,
-      label,
-      type,
-      meta: { touched, error },
-      dataSelector,
-      inputGroup,
-      additionalText,
-      required,
-      inputSize,
-      rightLabel,
-      transparent,
-      disabled,
-      maxLength,
-      pattern,
-    } = this.props;
-
-
-    return (
-
-      <div
-        className={`form-field ${JSON.parse(inputGroup) && touched && error && 'input-group-error'} ${!(JSON.parse(inputGroup)) && 'clearfix'} ${(type === 'hidden') && 'hide'} `}
-      >
-        <label
-          className={`form-label ${required}`} data-selector={`${dataSelector}-input-label`}
-          htmlFor="input-label"
-        >
-          {label}
-        </label>
-        <div className={`form-value ${touched && error && 'error'}`}>
-          {touched &&
-          (error &&
-            <div className="form-error" data-selector={`${dataSelector}-input-error`}>
-              {error}
-            </div>)}
-          <Input
-            {...input}
-            type={type}
-            onChange={this.onChange}
-            value={this.state.value}
-            size={inputSize}
-            transparent={transparent}
-            disabled={disabled}
-            maxLength={maxLength}
-          >
-            <input
-              onPaste={this.handlePaste}
-              pattern={pattern || null}
-              data-selector={`${dataSelector}-input`}
-            />
-          </Input> {rightLabel}
-        </div>
-
-        {(<div className="additional-text">{additionalText}</div>)}
-      </div>);
+.checkmark{
+  display:inline-block;
+  
+  &:after{
+    /*Add another block-level blank space*/
+    content: '';
+    display: block;
+ 
+    /*Make it a small rectangle so the border will create an L-shape*/
+    width: 3px;
+    height: 6px;
+ 
+    /*Add a white border on the bottom and left, creating that 'L' */
+    border: solid #000;
+    border-width: 0 2px 2px 0;
+ 
+    /*Rotate the L 45 degrees to turn it into a checkmark*/
+    transform: rotate(45deg);
   }
 }
-
-InputField.propTypes = propTypes;
-InputField.defaultProps = defaultProps;
-
-export default InputField;
