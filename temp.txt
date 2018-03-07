@@ -1,20 +1,74 @@
-.checkmark{
-  display:inline-block;
-  
-  &:after{
-    /*Add another block-level blank space*/
-    content: '';
-    display: block;
- 
-    /*Make it a small rectangle so the border will create an L-shape*/
-    width: 3px;
-    height: 6px;
- 
-    /*Add a white border on the bottom and left, creating that 'L' */
-    border: solid #000;
-    border-width: 0 2px 2px 0;
- 
-    /*Rotate the L 45 degrees to turn it into a checkmark*/
-    transform: rotate(45deg);
-  }
+import React, {Component} from 'react';
+import styles from './linear-dropdown.scss';
+import * as _ from 'lodash';
+import Icon from '../../components/font-awesome/Icon';
+
+import PropTypes from 'prop-types';
+
+class LinearDropdown extends Component {
+
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedItem: this.props.selectedItem, showHiddenItems: false, hiddenListStyle: {
+                display: 'inline',
+                position: 'absolute',
+                zIndex: 9999
+            }
+        };
+    }
+
+
+    hiddenList = (items, itemsToShow) => {
+        return (
+            <div className={styles["hidden-list"]} style={this.state.hiddenListStyle}>
+                {_.takeRight(items, items.length - itemsToShow).map((item, index) => <div
+                    className={styles["hidden-list-item"]} key={index}>{item.value}</div>)}
+            </div>
+        )
+    };
+
+    showHiddenList = (e) => {
+        console.log(e.currentTarget.clientHeight, e.pageY, e.nativeEvent);
+        this.setState({
+            showHiddenItems: !this.state.showHiddenItems,
+            hiddenListStyle: {...this.state.hiddenListStyle, top: e.pageY + e.currentTarget.offsetY, left: e.pageX - e.nativeEvent.offsetX}
+        });
+    };
+
+    onMouseDown = (e) => {
+
+    };
+
+    render() {
+        const {items, itemsToShow} = this.props;
+
+        return (
+            <div className={styles["list-container"]}>
+                {_.take(items, itemsToShow).map((item, index) => <div className={styles["list-item"]}
+                                                                      key={index}>{item.value}</div>)}
+
+                <div className={styles["list-item"]} onClick={this.showHiddenList} onMouseDown={this.onMouseDown}>Other
+                    <Icon iconName="chevron-down" classNames={styles.chevron}/>
+                </div>
+
+                {this.state.showHiddenItems && this.hiddenList(items, itemsToShow)}
+
+            </div>
+        )
+    }
+
 }
+
+LinearDropdown.propTypes = {
+    items: PropTypes.array,
+    itemsToShow: PropTypes.number
+};
+
+LinearDropdown.defaultProps = {
+    items: [],
+    itemsToShow: 3
+};
+
+export default LinearDropdown;
