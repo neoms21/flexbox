@@ -1,3 +1,5 @@
+
+///^[1-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/
 import React, {Component} from 'react';
 import styles from './linear-dropdown.scss';
 import * as _ from 'lodash';
